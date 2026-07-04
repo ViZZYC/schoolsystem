@@ -487,6 +487,14 @@ const FIELD_DEFS = [
   { key: "other_g", label: "અન્ય કન્યા" },
   { key: "att_b", label: "સરેરાશ હાજરી કુમાર" },
   { key: "att_g", label: "સરેરાશ હાજરી કન્યા" },
+  { key: "admit_bf_b", label: "ચાલુ માસમાં દાખલ - બિ.ફ. કુમાર" },
+  { key: "admit_bf_g", label: "ચાલુ માસમાં દાખલ - બિ.ફ. કન્યા" },
+  { key: "admit_farj_b", label: "ચાલુ માસમાં દાખલ - ફરજિયાત કુમાર" },
+  { key: "admit_farj_g", label: "ચાલુ માસમાં દાખલ - ફરજિયાત કન્યા" },
+  { key: "remove_bf_b", label: "ચાલુ માસમાં નામ કમી - બિ.ફ. કુમાર" },
+  { key: "remove_bf_g", label: "ચાલુ માસમાં નામ કમી - બિ.ફ. કન્યા" },
+  { key: "remove_farj_b", label: "ચાલુ માસમાં નામ કમી - ફરજિયાત કુમાર" },
+  { key: "remove_farj_g", label: "ચાલુ માસમાં નામ કમી - ફરજિયાત કન્યા" },
   { key: "midday", label: "મધ્યાહ્ન ભોજનના લાભાર્થી" },
   { key: "bond", label: "વિધાલક્ષ્મી બોન્ડ ધારક કન્યાઓ" },
   { key: "minority", label: "તે પૈકી લઘુમતિ બાળકો" },
@@ -600,6 +608,9 @@ function dataRowCells(fields) {
   });
   html += '<td>' + t.totalB + '</td><td>' + t.totalG + '</td><td>' + t.totalAll + '</td>';
   html += '<td>' + (fields.att_b || 0) + '</td><td>' + (fields.att_g || 0) + '</td><td>' + t.attTotal + '</td>';
+  ['admit_bf_b','admit_bf_g','admit_farj_b','admit_farj_g','remove_bf_b','remove_bf_g','remove_farj_b','remove_farj_g'].forEach(k => {
+    html += '<td>' + (fields[k] || 0) + '</td>';
+  });
   html += '<td>' + (fields.midday || 0) + '</td><td>' + (fields.bond || 0) + '</td><td>' + (fields.minority || 0) + '</td><td>' + (fields.aadhar || 0) + '</td>';
   return html;
 }
@@ -607,28 +618,35 @@ function dataRowCells(fields) {
 function tableHeadHtml() {
   return '<thead>' +
     '<tr>' +
-      '<th rowspan="2">ધોરણ</th>' +
-      '<th rowspan="2">શિક્ષક</th>' +
+      '<th rowspan="3">ધોરણ</th>' +
       '<th colspan="2">અનુ.જાતિ</th>' +
       '<th colspan="2">અનુ.જ.જાતિ</th>' +
       '<th colspan="2">બક્ષીપંચ</th>' +
       '<th colspan="2">અન્ય</th>' +
       '<th colspan="3">કુલ</th>' +
       '<th colspan="3">સરેરાશ હાજરી</th>' +
-      '<th rowspan="2">મધ્યાહ્ન ભોજનના<br>લાભાર્થી</th>' +
-      '<th rowspan="2">વિધાલક્ષ્મી બોન્ડ<br>ધારક કન્યાઓ</th>' +
-      '<th rowspan="2">તે પૈકી<br>લઘુમતિ બાળકો</th>' +
-      '<th rowspan="2">આધાર કાર્ડ<br>બાળકો</th>' +
-      '<th rowspan="2">સ્થિતિ</th>' +
-      '<th rowspan="2">ક્રિયા</th>' +
+      '<th colspan="4">ચાલુ માસમાં દાખલ કરેલ</th>' +
+      '<th colspan="4">ચાલુ માસમાં નામ કમી કરેલ</th>' +
+      '<th rowspan="3">મધ્યાહ્ન ભોજનના<br>લાભાર્થી</th>' +
+      '<th rowspan="3">વિધાલક્ષ્મી બોન્ડ<br>ધારક કન્યાઓ</th>' +
+      '<th rowspan="3">તે પૈકી<br>લઘુમતિ બાળકો</th>' +
+      '<th rowspan="3">આધાર કાર્ડ<br>બાળકો</th>' +
+    '</tr>' +
+    '<tr>' +
+      '<th rowspan="2">કુમાર</th><th rowspan="2">કન્યા</th>' +
+      '<th rowspan="2">કુમાર</th><th rowspan="2">કન્યા</th>' +
+      '<th rowspan="2">કુમાર</th><th rowspan="2">કન્યા</th>' +
+      '<th rowspan="2">કુમાર</th><th rowspan="2">કન્યા</th>' +
+      '<th rowspan="2">કુમાર</th><th rowspan="2">કન્યા</th><th rowspan="2">કુલ</th>' +
+      '<th rowspan="2">કુમાર</th><th rowspan="2">કન્યા</th><th rowspan="2">કુલ</th>' +
+      '<th colspan="2">બિ.ફ.</th><th colspan="2">ફરજિયાત</th>' +
+      '<th colspan="2">બિ.ફ.</th><th colspan="2">ફરજિયાત</th>' +
     '</tr>' +
     '<tr>' +
       '<th>કુમાર</th><th>કન્યા</th>' +
       '<th>કુમાર</th><th>કન્યા</th>' +
       '<th>કુમાર</th><th>કન્યા</th>' +
       '<th>કુમાર</th><th>કન્યા</th>' +
-      '<th>કુમાર</th><th>કન્યા</th><th>કુલ</th>' +
-      '<th>કુમાર</th><th>કન્યા</th><th>કુલ</th>' +
     '</tr>' +
   '</thead>';
 }
@@ -663,32 +681,23 @@ function renderAdmin() {
     const shaded = i % 2 === 1 ? ' class="shaded"' : '';
     html += '<tr' + shaded + '>';
     html += '<td class="row-name">' + std + '</td>';
-    html += '<td>' + (r ? escapeHtml(r.teacherName) : '<span style="color:#bbb">—</span>') + '</td>';
     html += dataRowCells(r ? r.fields : emptyFieldSet());
-    if (r) {
-      html += '<td>' + (r.locked ? '<span class="badge locked">Locked</span>' : '<span class="badge open">Open</span>') + '</td>';
-      html += '<td>' + (r.locked
-        ? '<span style="color:#bbb; font-size:11.5px;">કાયમ માટે લોક</span>'
-        : '<span style="color:#bbb; font-size:11.5px;">શિક્ષક ભરી રહ્યા છે</span>') + '</td>';
-    } else {
-      html += '<td><span style="color:#ccc">—</span></td><td><span style="color:#ccc">—</span></td>';
-    }
     html += '</tr>';
 
     /* subtotal after standard index 5 (પાંયમું) */
     if (i === 5) {
       const sub1 = sumStandards(STANDARDS.slice(0, 6));
-      html += '<tr class="subtotal-row"><td class="row-name">બાલવાટિકા + (૧ થી ૫)</td><td></td>' + dataRowCells(sub1) + '<td></td><td></td></tr>';
+      html += '<tr class="subtotal-row"><td class="row-name">બાલવાટિકા + (૧ થી ૫)</td>' + dataRowCells(sub1) + '</tr>';
     }
   });
 
   /* subtotal for std 6-8 */
   const sub2 = sumStandards(STANDARDS.slice(6, 9));
-  html += '<tr class="subtotal-row"><td class="row-name">૬. થી ૮</td><td></td>' + dataRowCells(sub2) + '<td></td><td></td></tr>';
+  html += '<tr class="subtotal-row"><td class="row-name">૬. થી ૮</td>' + dataRowCells(sub2) + '</tr>';
 
   /* grand total */
   const grand = sumStandards(STANDARDS);
-  html += '<tr class="grand-total-row"><td class="row-name">કુલ એકંદરે</td><td></td>' + dataRowCells(grand) + '<td></td><td></td></tr>';
+  html += '<tr class="grand-total-row"><td class="row-name">કુલ એકંદરે</td>' + dataRowCells(grand) + '</tr>';
 
   html += '</tbody></table></div></div></div>';
 
@@ -752,16 +761,14 @@ function renderTeacher() {
     html += tableHeadHtml();
     html += '<tbody><tr>';
     html += '<td class="row-name">' + std + '</td>';
-    html += '<td>' + escapeHtml(existing.teacherName) + '</td>';
     html += dataRowCells(existing.fields);
-    html += '<td>' + (existing.locked ? '<span class="badge locked">Locked</span>' : '<span class="badge open">Open</span>') + '</td>';
-    html += '<td>';
+    html += '</tr></tbody></table></div></div>';
+    html += '<div class="panel-body" style="padding:12px 18px;">';
     html += '<button class="action-btn edit" onclick="startTeacherEdit()" ' + (existing.locked ? 'disabled' : '') + '>Edit</button>';
     html += existing.locked
       ? '<button class="action-btn lock" disabled style="opacity:0.5; cursor:not-allowed;">Locked</button>'
       : '<button class="action-btn lock" onclick="teacherLockRecord()">Lock</button>';
-    html += '</td>';
-    html += '</tr></tbody></table></div></div></div>';
+    html += '</div></div>';
   }
 
   area.innerHTML = html;
