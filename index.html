@@ -178,6 +178,8 @@
   table.data-table th { background: #f6f7fb; font-weight: 700; color: #333; }
   table.data-table td.row-name { text-align: left; font-weight: 600; }
   table.data-table tr.shaded td { background: #fafafa; }
+  table.data-table tr.subtotal-row td { background: #eaf0fb; font-weight: 700; color: #1a2744; }
+  table.data-table tr.grand-total-row td { background: #2e4a7a; color: #fff; font-weight: 800; }
   .scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
   .badge {
@@ -564,6 +566,73 @@ function render() {
   else renderTeacher();
 }
 
+/* ---------------- ADMIN VIEW HELPERS ---------------- */
+function calcTotals(fields) {
+  const totalB = (parseInt(fields.sc_b)||0) + (parseInt(fields.st_b)||0) + (parseInt(fields.obc_b)||0) + (parseInt(fields.other_b)||0);
+  const totalG = (parseInt(fields.sc_g)||0) + (parseInt(fields.st_g)||0) + (parseInt(fields.obc_g)||0) + (parseInt(fields.other_g)||0);
+  const totalAll = totalB + totalG;
+  const attTotal = (parseInt(fields.att_b)||0) + (parseInt(fields.att_g)||0);
+  return { totalB, totalG, totalAll, attTotal };
+}
+
+function emptyFieldSet() {
+  const f = {};
+  FIELD_DEFS.forEach(fd => f[fd.key] = 0);
+  return f;
+}
+
+function sumStandards(stdList) {
+  const sum = emptyFieldSet();
+  stdList.forEach(std => {
+    const r = records[std];
+    if (r) {
+      FIELD_DEFS.forEach(fd => sum[fd.key] += (parseInt(r.fields[fd.key]) || 0));
+    }
+  });
+  return sum;
+}
+
+function dataRowCells(fields) {
+  const t = calcTotals(fields);
+  let html = '';
+  ['sc_b','sc_g','st_b','st_g','obc_b','obc_g','other_b','other_g'].forEach(k => {
+    html += '<td>' + (fields[k] || 0) + '</td>';
+  });
+  html += '<td>' + t.totalB + '</td><td>' + t.totalG + '</td><td>' + t.totalAll + '</td>';
+  html += '<td>' + (fields.att_b || 0) + '</td><td>' + (fields.att_g || 0) + '</td><td>' + t.attTotal + '</td>';
+  html += '<td>' + (fields.midday || 0) + '</td><td>' + (fields.bond || 0) + '</td><td>' + (fields.minority || 0) + '</td><td>' + (fields.aadhar || 0) + '</td>';
+  return html;
+}
+
+function tableHeadHtml() {
+  return '<thead>' +
+    '<tr>' +
+      '<th rowspan="2">ધોરણ</th>' +
+      '<th rowspan="2">શિક્ષક</th>' +
+      '<th colspan="2">અનુ.જાતિ</th>' +
+      '<th colspan="2">અનુ.જ.જાતિ</th>' +
+      '<th colspan="2">બક્ષીપંચ</th>' +
+      '<th colspan="2">અન્ય</th>' +
+      '<th colspan="3">કુલ</th>' +
+      '<th colspan="3">સરેરાશ હાજરી</th>' +
+      '<th rowspan="2">મધ્યાહ્ન ભોજનના<br>લાભાર્થી</th>' +
+      '<th rowspan="2">વિધાલક્ષ્મી બોન્ડ<br>ધારક કન્યાઓ</th>' +
+      '<th rowspan="2">તે પૈકી<br>લઘુમતિ બાળકો</th>' +
+      '<th rowspan="2">આધાર કાર્ડ<br>બાળકો</th>' +
+      '<th rowspan="2">સ્થિતિ</th>' +
+      '<th rowspan="2">ક્રિયા</th>' +
+    '</tr>' +
+    '<tr>' +
+      '<th>કુમાર</th><th>કન્યા</th>' +
+      '<th>કુમાર</th><th>કન્યા</th>' +
+      '<th>કુમાર</th><th>કન્યા</th>' +
+      '<th>કુમાર</th><th>કન્યા</th>' +
+      '<th>કુમાર</th><th>કન્યા</th><th>કુલ</th>' +
+      '<th>કુમાર</th><th>કન્યા</th><th>કુલ</th>' +
+    '</tr>' +
+  '</thead>';
+}
+
 /* ---------------- ADMIN VIEW ---------------- */
 function renderAdmin() {
   const area = document.getElementById('content-area');
@@ -584,19 +653,18 @@ function renderAdmin() {
 
   html += '<div class="panel">';
   html += '<div class="panel-header">ધોરણવાર રેકોર્ડ</div>';
-  html += '<div class="panel-body"><div class="scroll-x"><table class="data-table"><thead><tr>';
-  html += '<th>ધોરણ</th><th>શિક્ષક</th>' + FIELD_DEFS.map(f => '<th>' + f.label + '</th>').join('') + '<th>સ્થિતિ</th><th>ક્રિયા</th>';
-  html += '</tr></thead><tbody>';
+  html += '<div class="panel-body"><div class="scroll-x"><table class="data-table">';
+  html += tableHeadHtml();
+  html += '<tbody>';
 
+  /* rows: index 0-5 = બાલવાટિકા + ૧ થી ૫, subtotal, then 6-8 = ૬ થી ૮, subtotal, then grand total */
   STANDARDS.forEach((std, i) => {
     const r = records[std];
     const shaded = i % 2 === 1 ? ' class="shaded"' : '';
     html += '<tr' + shaded + '>';
     html += '<td class="row-name">' + std + '</td>';
     html += '<td>' + (r ? escapeHtml(r.teacherName) : '<span style="color:#bbb">—</span>') + '</td>';
-    FIELD_DEFS.forEach(f => {
-      html += '<td>' + (r ? (r.fields[f.key] || 0) : '<span style="color:#ccc">-</span>') + '</td>';
-    });
+    html += dataRowCells(r ? r.fields : emptyFieldSet());
     if (r) {
       html += '<td>' + (r.locked ? '<span class="badge locked">Locked</span>' : '<span class="badge open">Open</span>') + '</td>';
       html += '<td>' + (r.locked
@@ -606,7 +674,21 @@ function renderAdmin() {
       html += '<td><span style="color:#ccc">—</span></td><td><span style="color:#ccc">—</span></td>';
     }
     html += '</tr>';
+
+    /* subtotal after standard index 5 (પાંયમું) */
+    if (i === 5) {
+      const sub1 = sumStandards(STANDARDS.slice(0, 6));
+      html += '<tr class="subtotal-row"><td class="row-name">બાલવાટિકા + (૧ થી ૫)</td><td></td>' + dataRowCells(sub1) + '<td></td><td></td></tr>';
+    }
   });
+
+  /* subtotal for std 6-8 */
+  const sub2 = sumStandards(STANDARDS.slice(6, 9));
+  html += '<tr class="subtotal-row"><td class="row-name">૬. થી ૮</td><td></td>' + dataRowCells(sub2) + '<td></td><td></td></tr>';
+
+  /* grand total */
+  const grand = sumStandards(STANDARDS);
+  html += '<tr class="grand-total-row"><td class="row-name">કુલ એકંદરે</td><td></td>' + dataRowCells(grand) + '<td></td><td></td></tr>';
 
   html += '</tbody></table></div></div></div>';
 
@@ -666,12 +748,12 @@ function renderTeacher() {
 
   if (existing) {
     html += '<div class="panel"><div class="panel-header">સેવ થયેલ રેકોર્ડ</div>';
-    html += '<div class="panel-body"><div class="scroll-x"><table class="data-table"><thead><tr>';
-    html += '<th>ધોરણ</th><th>શિક્ષક</th>' + FIELD_DEFS.map(f => '<th>' + f.label + '</th>').join('') + '<th>સ્થિતિ</th><th>ક્રિયા</th>';
-    html += '</tr></thead><tbody><tr>';
+    html += '<div class="panel-body"><div class="scroll-x"><table class="data-table">';
+    html += tableHeadHtml();
+    html += '<tbody><tr>';
     html += '<td class="row-name">' + std + '</td>';
     html += '<td>' + escapeHtml(existing.teacherName) + '</td>';
-    FIELD_DEFS.forEach(f => { html += '<td>' + (existing.fields[f.key] || 0) + '</td>'; });
+    html += dataRowCells(existing.fields);
     html += '<td>' + (existing.locked ? '<span class="badge locked">Locked</span>' : '<span class="badge open">Open</span>') + '</td>';
     html += '<td>';
     html += '<button class="action-btn edit" onclick="startTeacherEdit()" ' + (existing.locked ? 'disabled' : '') + '>Edit</button>';
