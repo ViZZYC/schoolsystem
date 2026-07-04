@@ -580,7 +580,11 @@ function calcTotals(fields) {
   const totalG = (parseInt(fields.sc_g)||0) + (parseInt(fields.st_g)||0) + (parseInt(fields.obc_g)||0) + (parseInt(fields.other_g)||0);
   const totalAll = totalB + totalG;
   const attTotal = (parseInt(fields.att_b)||0) + (parseInt(fields.att_g)||0);
-  return { totalB, totalG, totalAll, attTotal };
+  const admitBfTotal = (parseInt(fields.admit_bf_b)||0) + (parseInt(fields.admit_bf_g)||0);
+  const admitFarjTotal = (parseInt(fields.admit_farj_b)||0) + (parseInt(fields.admit_farj_g)||0);
+  const removeBfTotal = (parseInt(fields.remove_bf_b)||0) + (parseInt(fields.remove_bf_g)||0);
+  const removeFarjTotal = (parseInt(fields.remove_farj_b)||0) + (parseInt(fields.remove_farj_g)||0);
+  return { totalB, totalG, totalAll, attTotal, admitBfTotal, admitFarjTotal, removeBfTotal, removeFarjTotal };
 }
 
 function emptyFieldSet() {
@@ -608,9 +612,10 @@ function dataRowCells(fields) {
   });
   html += '<td>' + t.totalB + '</td><td>' + t.totalG + '</td><td>' + t.totalAll + '</td>';
   html += '<td>' + (fields.att_b || 0) + '</td><td>' + (fields.att_g || 0) + '</td><td>' + t.attTotal + '</td>';
-  ['admit_bf_b','admit_bf_g','admit_farj_b','admit_farj_g','remove_bf_b','remove_bf_g','remove_farj_b','remove_farj_g'].forEach(k => {
-    html += '<td>' + (fields[k] || 0) + '</td>';
-  });
+  html += '<td>' + (fields.admit_bf_b || 0) + '</td><td>' + (fields.admit_bf_g || 0) + '</td><td>' + t.admitBfTotal + '</td>';
+  html += '<td>' + (fields.admit_farj_b || 0) + '</td><td>' + (fields.admit_farj_g || 0) + '</td><td>' + t.admitFarjTotal + '</td>';
+  html += '<td>' + (fields.remove_bf_b || 0) + '</td><td>' + (fields.remove_bf_g || 0) + '</td><td>' + t.removeBfTotal + '</td>';
+  html += '<td>' + (fields.remove_farj_b || 0) + '</td><td>' + (fields.remove_farj_g || 0) + '</td><td>' + t.removeFarjTotal + '</td>';
   html += '<td>' + (fields.midday || 0) + '</td><td>' + (fields.bond || 0) + '</td><td>' + (fields.minority || 0) + '</td><td>' + (fields.aadhar || 0) + '</td>';
   return html;
 }
@@ -625,8 +630,8 @@ function tableHeadHtml() {
       '<th colspan="2">અન્ય</th>' +
       '<th colspan="3">કુલ</th>' +
       '<th colspan="3">સરેરાશ હાજરી</th>' +
-      '<th colspan="4">ચાલુ માસમાં દાખલ કરેલ</th>' +
-      '<th colspan="4">ચાલુ માસમાં નામ કમી કરેલ</th>' +
+      '<th colspan="6">ચાલુ માસમાં દાખલ કરેલ</th>' +
+      '<th colspan="6">ચાલુ માસમાં નામ કમી કરેલ</th>' +
       '<th rowspan="3">મધ્યાહ્ન ભોજનના<br>લાભાર્થી</th>' +
       '<th rowspan="3">વિધાલક્ષ્મી બોન્ડ<br>ધારક કન્યાઓ</th>' +
       '<th rowspan="3">તે પૈકી<br>લઘુમતિ બાળકો</th>' +
@@ -639,14 +644,14 @@ function tableHeadHtml() {
       '<th rowspan="2">કુમાર</th><th rowspan="2">કન્યા</th>' +
       '<th rowspan="2">કુમાર</th><th rowspan="2">કન્યા</th><th rowspan="2">કુલ</th>' +
       '<th rowspan="2">કુમાર</th><th rowspan="2">કન્યા</th><th rowspan="2">કુલ</th>' +
-      '<th colspan="2">બિ.ફ.</th><th colspan="2">ફરજિયાત</th>' +
-      '<th colspan="2">બિ.ફ.</th><th colspan="2">ફરજિયાત</th>' +
+      '<th colspan="3">બિ.ફ.</th><th colspan="3">ફરજિયાત</th>' +
+      '<th colspan="3">બિ.ફ.</th><th colspan="3">ફરજિયાત</th>' +
     '</tr>' +
     '<tr>' +
-      '<th>કુમાર</th><th>કન્યા</th>' +
-      '<th>કુમાર</th><th>કન્યા</th>' +
-      '<th>કુમાર</th><th>કન્યા</th>' +
-      '<th>કુમાર</th><th>કન્યા</th>' +
+      '<th>કુમાર</th><th>કન્યા</th><th>કુલ</th>' +
+      '<th>કુમાર</th><th>કન્યા</th><th>કુલ</th>' +
+      '<th>કુમાર</th><th>કન્યા</th><th>કુલ</th>' +
+      '<th>કુમાર</th><th>કન્યા</th><th>કુલ</th>' +
     '</tr>' +
   '</thead>';
 }
